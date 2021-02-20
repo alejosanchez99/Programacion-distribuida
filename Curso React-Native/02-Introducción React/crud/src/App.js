@@ -7,12 +7,24 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [idTask, setIdTask] = useState("");
+  const [error, setError] = useState("");
+
+  const validForm = () => {
+    let isValid = true;
+    setError(null);
+
+    if (isEmpty(task)) {
+      setError("Debes ingresar una tarea");
+      isValid = false;
+    }
+
+    return isValid;
+  };
 
   const addTask = (e) => {
     e.preventDefault();
 
-    if (isEmpty(task)) {
-      console.log("Task empty");
+    if (!validForm()) {
       return;
     }
 
@@ -39,10 +51,10 @@ function App() {
   const updateTask = (e) => {
     e.preventDefault();
 
-    if (isEmpty(task)) {
-      console.log("Task empty");
+    if (!validForm()) {
       return;
     }
+
     const editedTasks = tasks.map((item) =>
       item.idTask == idTask ? { idTask, nameTask: task } : item
     );
@@ -60,7 +72,7 @@ function App() {
         <div className="col-8">
           <h4 className="text-center">Lista de tareas</h4>
           {size(tasks) == 0 ? (
-            <h5 className="text-center">Aún no hay tareas programadas.</h5>
+            <li className="list-group-item">Aún no hay tareas programadas.</li>
           ) : (
             <ul className="list-group">
               {tasks.map((task) => (
@@ -88,6 +100,7 @@ function App() {
             {editMode ? "Modificar tarea" : "Agregar tarea"}
           </h4>
           <form onSubmit={editMode ? updateTask : addTask}>
+            {error && <span className="text-danger mb-2">{error}</span>}
             <input
               type="text"
               className="form-control mb-2"
