@@ -1,13 +1,13 @@
  const getPokes = async() => {
      try {
-         const result = await fetch("https://pokeapi.co/api/v2/pokemon")
+         const pokes = await fetch("https://pokeapi.co/api/v2/pokemon")
 
-         return result.json();
+         return await pokes.json();
      } catch (error) {
          console.log(error);
      }
  }
 
-const result = getPokes().then(answer => console.log((answer)));
+const pokes = getPokes().then(answer => console.log((answer)));
 
 // El fetch te permite consurmir apis para obtener información
