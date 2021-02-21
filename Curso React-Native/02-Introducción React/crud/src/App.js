@@ -1,13 +1,32 @@
 import { isEmpty, size } from "lodash";
-import React, { useState } from "react";
-import shortid from "shortid";
+import React, { useState, useEffect } from "react";
+import {
+  addDocument,
+  deleteDocument,
+  getCollection,
+  updateDocument,
+} from "./actions";
+
+///El use effect no sirve para cuando la pagina carga
+/// el use state es para manejar los estados de la aplicación (maneja las variables globales)
 
 function App() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
   const [editMode, setEditMode] = useState(false);
-  const [idTask, setIdTask] = useState("");
+  const [id, setIdTask] = useState("");
   const [error, setError] = useState("");
+  const [nameColection, setNameColection] = useState("tasks");
+
+  useEffect(() => {
+    (async () => {
+      const result = await getCollection(nameColection);
+
+      if (result.statusResponse) {
+        setTasks(result.data);
+      }
+    })();
+  }, []);
 
   const validForm = () => {
     let isValid = true;
@@ -21,42 +40,58 @@ function App() {
     return isValid;
   };
 
-  const addTask = (e) => {
+  const addTask = async (e) => {
     e.preventDefault();
 
     if (!validForm()) {
       return;
     }
 
-    const newTask = {
-      idTask: shortid.generate(),
-      nameTask: task,
-    };
+    const result = await addDocument(nameColection, { name: task });
 
-    setTasks([...tasks, newTask]);
+    console.log(result);
+    if (!result.statusResponse) {
+      setError(result.error);
+      return;
+    }
+
+    setTasks([...tasks, { id: result.data.id, name: task }]);
     setTask("");
   };
 
-  const deleteTask = (idTask) => {
-    const filteredTask = tasks.filter((task) => task.idTask !== idTask);
+  const deleteTask = async (id) => {
+    const result = await deleteDocument(nameColection, id);
+
+    if (!result.statusResponse) {
+      setError(result.error);
+      return;
+    }
+    const filteredTask = tasks.filter((task) => task.id !== id);
     setTasks(filteredTask);
   };
 
   const editTask = (task) => {
-    setTask(task.nameTask);
+    setTask(task.name);
     setEditMode(true);
-    setIdTask(task.idTask);
+    setIdTask(task.id);
   };
 
-  const updateTask = (e) => {
+  const updateTask = async (e) => {
     e.preventDefault();
 
     if (!validForm()) {
       return;
     }
 
+    const result = await updateDocument(nameColection, id, { name: task });
+
+    if (!result.statusResponse) {
+      setError(result.error);
+      return;
+    }
+
     const editedTasks = tasks.map((item) =>
-      item.idTask == idTask ? { idTask, nameTask: task } : item
+      item.id == id ? { id, name: task } : item
     );
     setTasks(editedTasks);
     setEditMode(false);
@@ -76,11 +111,11 @@ function App() {
           ) : (
             <ul className="list-group">
               {tasks.map((task) => (
-                <li className="list-group-item" key={task.idTask}>
-                  <span className="lead">{task.nameTask}</span>
+                <li className="list-group-item" key={task.id}>
+                  <span className="lead">{task.name}</span>
                   <button
                     className="btn btn-danger btn-sm float-right mx-2"
-                    onClick={() => deleteTask(task.idTask)}
+                    onClick={() => deleteTask(task.id)}
                   >
                     Eliminar
                   </button>
