@@ -28,6 +28,8 @@ function App() {
   const [pacient, setPacient] = useState();
   const [pacients, setPacients] = useState([]);
   const [nameCollection] = useState("pacients");
+  const [editMode, setEditMode] = useState(false);
+
 
   useEffect(() => {
     (async () => {
@@ -47,19 +49,38 @@ function App() {
   };
 
   const openModal = () => {
+    setEditMode(false);
+    setPacient("");
     setSeeModal(!seeModal);
   };
 
   const addPacient = async () => {
-    console.log(pacient);
     const result = await addDocument(nameCollection, pacient);
 
     if (!result.statusResponse) {
-      console.log(result.error);
       return;
     }
 
     setSeeModal(!seeModal);
+  };
+
+  const editPacient = (pacient) => {
+    setPacient(pacient);
+    setEditMode(true);
+    setSeeModal(!seeModal);
+  };
+
+  const updatePacient = async (e) => {
+    e.preventDefault();
+
+    const result = await updateDocument(nameCollection, pacient.id, pacient);
+
+    if (!result.statusResponse) {
+      return;
+    }
+    setEditMode(false);
+    setPacient("");
+    setSeeModal(false);
   };
 
   return (
@@ -107,7 +128,9 @@ function App() {
               <td>{pacient.ownerEmail}</td>
               <td>
                 <div className="row">
-                  <IconButton>
+                  <IconButton
+                    onClick={() => editPacient(pacient)}
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton>
@@ -122,7 +145,7 @@ function App() {
 
       <Modal isOpen={seeModal} className="modal-test">
         <ModalHeader>Crear paciente</ModalHeader>
-        <Form onSubmit={() => addPacient()}>
+        <Form onSubmit={editMode ? updatePacient : addPacient}>
           <ModalBody>
             <FormGroup>
               <Label>Nombre mascota</Label>
@@ -131,6 +154,7 @@ function App() {
                 placeholder="Ingrese el nombre de la mascota"
                 onChange={handleInputChange}
                 name="petName"
+                value = {editMode ? pacient.petName : ""}
                 required
               />
             </FormGroup>
@@ -141,6 +165,7 @@ function App() {
                 placeholder="Ingrese el tipo de la mascota"
                 onChange={handleInputChange}
                 name="petType"
+                value = {editMode ? pacient.petType : ""}
                 required
               />
             </FormGroup>
@@ -151,6 +176,7 @@ function App() {
                 placeholder="Ingrese la raza de la mascota"
                 onChange={handleInputChange}
                 name="petBreed"
+                value = {editMode ? pacient.petBreed : ""}
                 required
               />
             </FormGroup>
@@ -161,6 +187,7 @@ function App() {
                 placeholder="Ingrese la fecha de nacimiento de la mascota"
                 onChange={handleInputChange}
                 name="petDateOfBirth"
+                value = {editMode ? pacient.petDateOfBirth : ""}
                 required
               />
             </FormGroup>
@@ -171,6 +198,7 @@ function App() {
                 placeholder="Ingrese nombres y apellidos del propietario"
                 onChange={handleInputChange}
                 name="ownerName"
+                value = {editMode ? pacient.ownerName : ""}
                 required
               />
             </FormGroup>
@@ -181,6 +209,7 @@ function App() {
                 placeholder="Ingrese el teléfono del propietario"
                 onChange={handleInputChange}
                 name="ownerPhone"
+                value = {editMode ? pacient.ownerPhone : ""}
               />
             </FormGroup>
             <FormGroup>
@@ -190,6 +219,7 @@ function App() {
                 placeholder="Ingrese la dirección del propietario"
                 onChange={handleInputChange}
                 name="ownerAddress"
+                value = {editMode ? pacient.ownerAddress: ""}
                 required
               />
             </FormGroup>
@@ -200,6 +230,7 @@ function App() {
                 placeholder="Ingrese el email del propietario"
                 onChange={handleInputChange}
                 name="ownerEmail"
+                value = {editMode ? pacient.ownerEmail : ""}
                 required
               />
             </FormGroup>
