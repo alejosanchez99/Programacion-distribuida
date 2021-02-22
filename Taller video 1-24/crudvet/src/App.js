@@ -173,7 +173,7 @@ function App() {
       </table>
 
       <Modal isOpen={seeModal}>
-        <ModalHeader>Crear paciente</ModalHeader>
+        <ModalHeader>{editMode ? "Editar paciente" : "Crear paciente"}</ModalHeader>
         <Form onSubmit={editMode ? updatePacient : addPacient}>
           <ModalBody>
             <FormGroup>
@@ -271,7 +271,7 @@ function App() {
               className="btn btn-success ml-2"
               type="submit"
             >
-              Guardar
+              { editMode ? "Editar" : "Crear"}
             </Button>
           
           </ModalFooter>
