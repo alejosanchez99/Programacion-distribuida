@@ -16,7 +16,7 @@ function App() {
   const [editMode, setEditMode] = useState(false);
   const [id, setIdTask] = useState("");
   const [error, setError] = useState("");
-  const [nameColection] = useState("tasks");
+  const [nameColection,] = useState("tasks");
 
   useEffect(() => {
     (async () => {

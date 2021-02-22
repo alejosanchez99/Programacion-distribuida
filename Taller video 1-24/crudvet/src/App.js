@@ -60,12 +60,15 @@ function App() {
     setSeeModal(!seeModal);
   };
 
-  const addPacient = async () => {
+  const addPacient = async (e) => {
+    e.preventDefault();
     const result = await addDocument(nameCollection, pacient);
 
     if (!result.statusResponse) {
       return;
     }
+
+    console.log(result.data);
 
     setSeeModal(!seeModal);
   };
@@ -84,6 +87,7 @@ function App() {
     if (!result.statusResponse) {
       return;
     }
+
     setEditMode(false);
     setPacient("");
     setSeeModal(false);
@@ -169,7 +173,7 @@ function App() {
                 placeholder="Ingrese el nombre de la mascota"
                 onChange={handleInputChange}
                 name="petName"
-                value={editMode ? pacient.petName : ""}
+                defaultValue={editMode ? pacient.petName : ""}
                 required
               />
             </FormGroup>
@@ -180,7 +184,7 @@ function App() {
                 placeholder="Ingrese el tipo de la mascota"
                 onChange={handleInputChange}
                 name="petType"
-                value={editMode ? pacient.petType : ""}
+                defaultValue={editMode ? pacient.petType : ""}
                 required
               />
             </FormGroup>
@@ -191,7 +195,7 @@ function App() {
                 placeholder="Ingrese la raza de la mascota"
                 onChange={handleInputChange}
                 name="petBreed"
-                value={editMode ? pacient.petBreed : ""}
+                defaultValue={editMode ? pacient.petBreed : ""}
                 required
               />
             </FormGroup>
@@ -202,7 +206,7 @@ function App() {
                 placeholder="Ingrese la fecha de nacimiento de la mascota"
                 onChange={handleInputChange}
                 name="petDateOfBirth"
-                value={editMode ? pacient.petDateOfBirth : ""}
+                defaultValue={editMode ? pacient.petDateOfBirth : ""}
                 required
               />
             </FormGroup>
@@ -213,7 +217,7 @@ function App() {
                 placeholder="Ingrese nombres y apellidos del propietario"
                 onChange={handleInputChange}
                 name="ownerName"
-                value={editMode ? pacient.ownerName : ""}
+                defaultValue={editMode ? pacient.ownerName : ""}
                 required
               />
             </FormGroup>
@@ -224,7 +228,7 @@ function App() {
                 placeholder="Ingrese el teléfono del propietario"
                 onChange={handleInputChange}
                 name="ownerPhone"
-                value={editMode ? pacient.ownerPhone : ""}
+                defaultValue={editMode ? pacient.ownerPhone : ""}
               />
             </FormGroup>
             <FormGroup>
@@ -234,7 +238,7 @@ function App() {
                 placeholder="Ingrese la dirección del propietario"
                 onChange={handleInputChange}
                 name="ownerAddress"
-                value={editMode ? pacient.ownerAddress : ""}
+                defaultValue={editMode ? pacient.ownerAddress : ""}
                 required
               />
             </FormGroup>
@@ -245,14 +249,16 @@ function App() {
                 placeholder="Ingrese el email del propietario"
                 onChange={handleInputChange}
                 name="ownerEmail"
-                value={editMode ? pacient.ownerEmail : ""}
+                defaultValue={editMode ? pacient.ownerEmail : ""}
                 required
               />
             </FormGroup>
           </ModalBody>
           <ModalFooter>
             <Button onClick={() => openModal()}>Cerrar</Button>
-            <Button className="btn btn-success ml-2" type="submit">
+            <Button 
+            className="btn btn-success ml-2" 
+            type="submit">
               Guardar
             </Button>
           </ModalFooter>
@@ -265,8 +271,8 @@ function App() {
           <p>¿Desea confirmar la eliminación del paciente?</p>
         </ModalBody>
         <ModalFooter>
-          <Button 
-          onClick={() => openModalConfirmDelete()}
+          <Button
+            onClick={() => openModalConfirmDelete()}
           >
             Cerrar
           </Button>
