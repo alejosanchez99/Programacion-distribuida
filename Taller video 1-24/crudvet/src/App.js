@@ -104,10 +104,10 @@ function App() {
     if (!result.statusResponse) {
       return;
     }
-    const filteredPatient = patients.filter(
+    const filteredPatients = patients.filter(
       (patient) => patient.id !== idPatient
     );
-    setPatients(filteredPatient);
+    setPatients(filteredPatients);
     setSeeModalConfirmDelete(false);
   };
 
