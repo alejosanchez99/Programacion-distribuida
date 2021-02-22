@@ -13,6 +13,7 @@ import {
 import React, { useState, useEffect } from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import SaveIcon from '@material-ui/icons/Save';
 import { IconButton } from "@material-ui/core";
 
 import {
@@ -68,7 +69,7 @@ function App() {
       return;
     }
 
-    setPacients([...pacients, pacient]);
+    setPacients([...pacients, { id: result.data.id, ...pacient }]);
     setSeeModal(!seeModal);
   };
 
@@ -103,7 +104,9 @@ function App() {
     if (!result.statusResponse) {
       return;
     }
-    const filteredPacient = pacients.filter((pacient) => pacient.id !== idPacient);
+    const filteredPacient = pacients.filter(
+      (pacient) => pacient.id !== idPacient
+    );
     setPacients(filteredPacient);
     setSeeModalConfirmDelete(false);
   };
@@ -121,13 +124,14 @@ function App() {
             onClick={() => openModal()}
           >
             Crear
+            <SaveIcon className="save-icon"/>
           </button>
         </div>
       </div>
       <hr />
 
       <table className="table table-hover mt-5">
-        <thead>
+        <thead className="table-dark">
           <tr>
             <th scope="col">Nombre mascota</th>
             <th scope="col">Tipo mascota</th>
@@ -156,7 +160,9 @@ function App() {
                   <IconButton onClick={() => editPacient(pacient)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => openModalConfirmDelete(pacient.id)}>
+                  <IconButton
+                    onClick={() => openModalConfirmDelete(pacient.id)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </div>
@@ -262,7 +268,8 @@ function App() {
             <Button onClick={() => openModal()}>Cerrar</Button>
             <Button
               className="btn btn-success ml-2"
-              type="submit">
+              type="submit"
+            >
               Guardar
             </Button>
           </ModalFooter>
@@ -275,13 +282,10 @@ function App() {
           <p>¿Desea confirmar la eliminación del paciente?</p>
         </ModalBody>
         <ModalFooter>
+          <Button onClick={() => openModalConfirmDelete()}>Cerrar</Button>
           <Button
-            onClick={() => openModalConfirmDelete()}
-          >
-            Cerrar
-          </Button>
-          <Button
-            className="btn btn-success ml-2" type="submit"
+            className="btn btn-success ml-2"
+            type="submit"
             onClick={() => deletePacient()}
           >
             Aceptar

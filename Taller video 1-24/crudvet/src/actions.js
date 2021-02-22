@@ -25,7 +25,7 @@ export const addDocument = async (collection, data) => {
 
   try {
     const response = await db.collection(collection).add(data);
-    result.data = response;
+    result.data = { id: response.id };
     result.statusResponse = true;
   } catch (error) {
     result.error = error;
