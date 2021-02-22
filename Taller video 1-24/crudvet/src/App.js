@@ -26,10 +26,10 @@ import {
 function App() {
   const [seeModal, setSeeModal] = useState(false);
   const [seeModalConfirmDelete, setSeeModalConfirmDelete] = useState(false);
-  const [pacient, setPacient] = useState();
-  const [idPacient, setIdPacient] = useState();
-  const [pacients, setPacients] = useState([]);
-  const [nameCollection] = useState("pacients");
+  const [patient, setPatient] = useState();
+  const [idPatient, setIdPatient] = useState();
+  const [patients, setPatients] = useState([]);
+  const [nameCollection] = useState("patients");
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
@@ -37,44 +37,44 @@ function App() {
       const result = await getCollection(nameCollection);
 
       if (result.statusResponse) {
-        setPacients(result.data);
+        setPatients(result.data);
       }
     })();
   }, []);
 
   const handleInputChange = (event) => {
-    setPacient({
-      ...pacient,
+    setPatient({
+      ...patient,
       [event.target.name]: event.target.value,
     });
   };
 
   const openModalConfirmDelete = (idPacient) => {
-    setIdPacient(idPacient);
+    setIdPatient(idPacient);
     setEditMode(false);
     setSeeModalConfirmDelete(!seeModalConfirmDelete);
   };
 
   const openModal = () => {
     setEditMode(false);
-    setPacient("");
+    setPatient("");
     setSeeModal(!seeModal);
   };
 
   const addPacient = async (e) => {
     e.preventDefault();
-    const result = await addDocument(nameCollection, pacient);
+    const result = await addDocument(nameCollection, patient);
 
     if (!result.statusResponse) {
       return;
     }
 
-    setPacients([...pacients, { id: result.data.id, ...pacient }]);
+    setPatients([...patients, { id: result.data.id, ...patient }]);
     setSeeModal(!seeModal);
   };
 
-  const editPacient = (pacient) => {
-    setPacient(pacient);
+  const editPacient = (patient) => {
+    setPatient(patient);
     setEditMode(true);
     setSeeModal(!seeModal);
   };
@@ -82,32 +82,32 @@ function App() {
   const updatePacient = async (e) => {
     e.preventDefault();
 
-    const result = await updateDocument(nameCollection, pacient.id, pacient);
+    const result = await updateDocument(nameCollection, patient.id, patient);
 
     if (!result.statusResponse) {
       return;
     }
 
-    const editedPacients = pacients.map((item) =>
-      item.id == pacient.id ? pacient : item
+    const editedPacients = patients.map((item) =>
+      item.id == patient.id ? patient : item
     );
 
-    setPacients(editedPacients);
+    setPatients(editedPacients);
     setEditMode(false);
-    setPacient("");
+    setPatient("");
     setSeeModal(false);
   };
 
   const deletePacient = async () => {
-    const result = await deleteDocument(nameCollection, idPacient);
+    const result = await deleteDocument(nameCollection, idPatient);
 
     if (!result.statusResponse) {
       return;
     }
-    const filteredPacient = pacients.filter(
-      (pacient) => pacient.id !== idPacient
+    const filteredPatient = patients.filter(
+      (patient) => patient.id !== idPatient
     );
-    setPacients(filteredPacient);
+    setPatients(filteredPatient);
     setSeeModalConfirmDelete(false);
   };
 
@@ -124,7 +124,7 @@ function App() {
             onClick={() => openModal()}
           >
             Crear
-            <SaveIcon className="save-icon"/>
+            <SaveIcon className="save-icon" />
           </button>
         </div>
       </div>
@@ -145,23 +145,23 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {pacients.map((pacient) => (
+          {patients.map((patient) => (
             <tr>
-              <td>{pacient.petName}</td>
-              <td>{pacient.petType}</td>
-              <td>{pacient.petBreed}</td>
-              <td>{pacient.petDateOfBirth}</td>
-              <td>{pacient.ownerName}</td>
-              <td>{pacient.ownerPhone}</td>
-              <td>{pacient.ownerAddress}</td>
-              <td>{pacient.ownerEmail}</td>
+              <td>{patient.petName}</td>
+              <td>{patient.petType}</td>
+              <td>{patient.petBreed}</td>
+              <td>{patient.petDateOfBirth}</td>
+              <td>{patient.ownerName}</td>
+              <td>{patient.ownerPhone}</td>
+              <td>{patient.ownerAddress}</td>
+              <td>{patient.ownerEmail}</td>
               <td>
                 <div className="row">
-                  <IconButton onClick={() => editPacient(pacient)}>
+                  <IconButton onClick={() => editPacient(patient)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    onClick={() => openModalConfirmDelete(pacient.id)}
+                    onClick={() => openModalConfirmDelete(patient.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -183,7 +183,7 @@ function App() {
                 placeholder="Ingrese el nombre de la mascota"
                 onChange={handleInputChange}
                 name="petName"
-                defaultValue={editMode ? pacient.petName : ""}
+                defaultValue={editMode ? patient.petName : ""}
                 required
               />
             </FormGroup>
@@ -194,7 +194,7 @@ function App() {
                 placeholder="Ingrese el tipo de la mascota"
                 onChange={handleInputChange}
                 name="petType"
-                defaultValue={editMode ? pacient.petType : ""}
+                defaultValue={editMode ? patient.petType : ""}
                 required
               />
             </FormGroup>
@@ -205,7 +205,7 @@ function App() {
                 placeholder="Ingrese la raza de la mascota"
                 onChange={handleInputChange}
                 name="petBreed"
-                defaultValue={editMode ? pacient.petBreed : ""}
+                defaultValue={editMode ? patient.petBreed : ""}
                 required
               />
             </FormGroup>
@@ -216,7 +216,7 @@ function App() {
                 placeholder="Ingrese la fecha de nacimiento de la mascota"
                 onChange={handleInputChange}
                 name="petDateOfBirth"
-                defaultValue={editMode ? pacient.petDateOfBirth : ""}
+                defaultValue={editMode ? patient.petDateOfBirth : ""}
                 required
               />
             </FormGroup>
@@ -227,7 +227,7 @@ function App() {
                 placeholder="Ingrese nombres y apellidos del propietario"
                 onChange={handleInputChange}
                 name="ownerName"
-                defaultValue={editMode ? pacient.ownerName : ""}
+                defaultValue={editMode ? patient.ownerName : ""}
                 required
               />
             </FormGroup>
@@ -238,7 +238,8 @@ function App() {
                 placeholder="Ingrese el teléfono del propietario"
                 onChange={handleInputChange}
                 name="ownerPhone"
-                defaultValue={editMode ? pacient.ownerPhone : ""}
+                defaultValue={editMode ? patient.ownerPhone : ""}
+                required
               />
             </FormGroup>
             <FormGroup>
@@ -248,7 +249,7 @@ function App() {
                 placeholder="Ingrese la dirección del propietario"
                 onChange={handleInputChange}
                 name="ownerAddress"
-                defaultValue={editMode ? pacient.ownerAddress : ""}
+                defaultValue={editMode ? patient.ownerAddress : ""}
                 required
               />
             </FormGroup>
@@ -259,7 +260,7 @@ function App() {
                 placeholder="Ingrese el email del propietario"
                 onChange={handleInputChange}
                 name="ownerEmail"
-                defaultValue={editMode ? pacient.ownerEmail : ""}
+                defaultValue={editMode ? patient.ownerEmail : ""}
                 required
               />
             </FormGroup>
@@ -272,6 +273,7 @@ function App() {
             >
               Guardar
             </Button>
+          
           </ModalFooter>
         </Form>
       </Modal>
