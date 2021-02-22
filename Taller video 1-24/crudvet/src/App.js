@@ -12,9 +12,8 @@ import {
 } from "reactstrap";
 import React, { useState, useEffect } from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from '@material-ui/icons/Edit';
-import { IconButton } from '@material-ui/core';
-
+import EditIcon from "@material-ui/icons/Edit";
+import { IconButton } from "@material-ui/core";
 
 import {
   addDocument,
@@ -25,11 +24,12 @@ import {
 
 function App() {
   const [seeModal, setSeeModal] = useState(false);
+  const [seeModalConfirmDelete, setSeeModalConfirmDelete] = useState(false);
   const [pacient, setPacient] = useState();
+  const [idPacient, setIdPacient] = useState();
   const [pacients, setPacients] = useState([]);
   const [nameCollection] = useState("pacients");
   const [editMode, setEditMode] = useState(false);
-
 
   useEffect(() => {
     (async () => {
@@ -46,6 +46,12 @@ function App() {
       ...pacient,
       [event.target.name]: event.target.value,
     });
+  };
+
+  const openModalConfirmDelete = (idPacient) => {
+    setIdPacient(idPacient);
+    setEditMode(false);
+    setSeeModalConfirmDelete(!seeModalConfirmDelete);
   };
 
   const openModal = () => {
@@ -81,6 +87,17 @@ function App() {
     setEditMode(false);
     setPacient("");
     setSeeModal(false);
+  };
+
+  const deletePacient = async () => {
+    const result = await deleteDocument(nameCollection, idPacient);
+
+    if (!result.statusResponse) {
+      return;
+    }
+    const filteredPacient = pacients.filter((pacient) => pacient.id !== idPacient);
+    setPacients(filteredPacient);
+    setSeeModalConfirmDelete(false);
   };
 
   return (
@@ -128,12 +145,10 @@ function App() {
               <td>{pacient.ownerEmail}</td>
               <td>
                 <div className="row">
-                  <IconButton
-                    onClick={() => editPacient(pacient)}
-                  >
+                  <IconButton onClick={() => editPacient(pacient)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton>
+                  <IconButton onClick={() => openModalConfirmDelete(pacient.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </div>
@@ -143,7 +158,7 @@ function App() {
         </tbody>
       </table>
 
-      <Modal isOpen={seeModal} className="modal-test">
+      <Modal isOpen={seeModal}>
         <ModalHeader>Crear paciente</ModalHeader>
         <Form onSubmit={editMode ? updatePacient : addPacient}>
           <ModalBody>
@@ -154,7 +169,7 @@ function App() {
                 placeholder="Ingrese el nombre de la mascota"
                 onChange={handleInputChange}
                 name="petName"
-                value = {editMode ? pacient.petName : ""}
+                value={editMode ? pacient.petName : ""}
                 required
               />
             </FormGroup>
@@ -165,7 +180,7 @@ function App() {
                 placeholder="Ingrese el tipo de la mascota"
                 onChange={handleInputChange}
                 name="petType"
-                value = {editMode ? pacient.petType : ""}
+                value={editMode ? pacient.petType : ""}
                 required
               />
             </FormGroup>
@@ -176,7 +191,7 @@ function App() {
                 placeholder="Ingrese la raza de la mascota"
                 onChange={handleInputChange}
                 name="petBreed"
-                value = {editMode ? pacient.petBreed : ""}
+                value={editMode ? pacient.petBreed : ""}
                 required
               />
             </FormGroup>
@@ -187,7 +202,7 @@ function App() {
                 placeholder="Ingrese la fecha de nacimiento de la mascota"
                 onChange={handleInputChange}
                 name="petDateOfBirth"
-                value = {editMode ? pacient.petDateOfBirth : ""}
+                value={editMode ? pacient.petDateOfBirth : ""}
                 required
               />
             </FormGroup>
@@ -198,7 +213,7 @@ function App() {
                 placeholder="Ingrese nombres y apellidos del propietario"
                 onChange={handleInputChange}
                 name="ownerName"
-                value = {editMode ? pacient.ownerName : ""}
+                value={editMode ? pacient.ownerName : ""}
                 required
               />
             </FormGroup>
@@ -209,7 +224,7 @@ function App() {
                 placeholder="Ingrese el teléfono del propietario"
                 onChange={handleInputChange}
                 name="ownerPhone"
-                value = {editMode ? pacient.ownerPhone : ""}
+                value={editMode ? pacient.ownerPhone : ""}
               />
             </FormGroup>
             <FormGroup>
@@ -219,7 +234,7 @@ function App() {
                 placeholder="Ingrese la dirección del propietario"
                 onChange={handleInputChange}
                 name="ownerAddress"
-                value = {editMode ? pacient.ownerAddress: ""}
+                value={editMode ? pacient.ownerAddress : ""}
                 required
               />
             </FormGroup>
@@ -230,7 +245,7 @@ function App() {
                 placeholder="Ingrese el email del propietario"
                 onChange={handleInputChange}
                 name="ownerEmail"
-                value = {editMode ? pacient.ownerEmail : ""}
+                value={editMode ? pacient.ownerEmail : ""}
                 required
               />
             </FormGroup>
@@ -242,6 +257,26 @@ function App() {
             </Button>
           </ModalFooter>
         </Form>
+      </Modal>
+
+      <Modal isOpen={seeModalConfirmDelete}>
+        <ModalHeader>Confirmar eliminación</ModalHeader>
+        <ModalBody>
+          <p>¿Desea confirmar la eliminación del paciente?</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button 
+          onClick={() => openModalConfirmDelete()}
+          >
+            Cerrar
+          </Button>
+          <Button
+            className="btn btn-success ml-2" type="submit"
+            onClick={() => deletePacient()}
+          >
+            Aceptar
+          </Button>
+        </ModalFooter>
       </Modal>
     </div>
   );
