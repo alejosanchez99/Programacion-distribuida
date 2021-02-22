@@ -68,8 +68,6 @@ function App() {
       return;
     }
 
-    console.log(result.data);
-
     setSeeModal(!seeModal);
   };
 
