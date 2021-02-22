@@ -68,6 +68,7 @@ function App() {
       return;
     }
 
+    setPacients([...pacients, pacient]);
     setSeeModal(!seeModal);
   };
 
@@ -86,6 +87,11 @@ function App() {
       return;
     }
 
+    const editedPacients = pacients.map((item) =>
+      item.id == pacient.id ? pacient : item
+    );
+
+    setPacients(editedPacients);
     setEditMode(false);
     setPacient("");
     setSeeModal(false);
@@ -254,9 +260,9 @@ function App() {
           </ModalBody>
           <ModalFooter>
             <Button onClick={() => openModal()}>Cerrar</Button>
-            <Button 
-            className="btn btn-success ml-2" 
-            type="submit">
+            <Button
+              className="btn btn-success ml-2"
+              type="submit">
               Guardar
             </Button>
           </ModalFooter>
