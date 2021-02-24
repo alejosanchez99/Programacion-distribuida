@@ -266,14 +266,19 @@ function App() {
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => openModal()}>Cerrar</Button>
             <Button
-              className="btn btn-success ml-2"
+              className="btn-modal mr-2"
+              onClick={() => openModal()}
+            >
+              Cerrar
+            </Button>
+            <Button
+              className="btn  btn-modal btn-success ml-2"
               type="submit"
             >
-              { editMode ? "Editar" : "Crear"}
+              {editMode ? "Editar" : "Crear"}
             </Button>
-          
+
           </ModalFooter>
         </Form>
       </Modal>
@@ -284,9 +289,14 @@ function App() {
           <p>¿Desea confirmar la eliminación del paciente?</p>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={() => openModalConfirmDelete()}>Cerrar</Button>
           <Button
-            className="btn btn-success ml-2"
+            onClick={() => openModalConfirmDelete()}
+            className="btn-modal mr-2"
+          >
+            Cerrar
+          </Button>
+          <Button
+            className="btn btn-modal btn-success ml-2"
             type="submit"
             onClick={() => deletePacient()}
           >
