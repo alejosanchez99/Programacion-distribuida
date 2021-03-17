@@ -1,15 +1,23 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Avatar } from 'react-native-elements';
+import { loadImageFromGallery } from '../../utils/helpers';
 
 export default function InfoUser({ user }) {
-    console.log(user);
+    
+    const changePhoto = async() => {
+        const result = await loadImageFromGallery([1,1]);
+
+        console.log(result);
+    } 
+
     return (
         <View style={styles.container}>
             <Avatar
                 rounded
                 size="large"
                 containerStyle={styles.avatar}
+                onPress={changePhoto}
                 source={
                     user.photoURL
                         ? { uri: photoURL }

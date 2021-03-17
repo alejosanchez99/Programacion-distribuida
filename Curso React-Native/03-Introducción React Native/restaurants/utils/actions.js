@@ -53,3 +53,9 @@ export const loginUserWithEmailAndPassword = async (email, password) => {
 
     return result;
 }
+
+export const uploadImage = async (image, path, name) => {
+    const result = { statusResponse: false, error: null, url: null };
+
+    return result;
+}
