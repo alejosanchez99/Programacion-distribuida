@@ -1,15 +1,41 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useState } from 'react'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { Avatar } from 'react-native-elements';
+import { uploadImage,updateProfile } from '../../utils/actions';
 import { loadImageFromGallery } from '../../utils/helpers';
 
-export default function InfoUser({ user }) {
-    
-    const changePhoto = async() => {
-        const result = await loadImageFromGallery([1,1]);
 
-        console.log(result);
-    } 
+export default function InfoUser({ user, setLoading, setLoadingText }) {
+
+    const [photoUrl, setPhotoUrl] = useState(user.photoURL);
+
+    const changePhoto = async () => {
+        const result = await loadImageFromGallery([1, 1]);
+
+        if (!result.status) {
+            return;
+        }
+
+        setLoadingText("Actualizando imagen..");
+        setLoading(true);
+        
+        const resultUploadImage = await uploadImage(result.image, "avatars", user.uid);
+        console.log(resultUploadImage);
+        if (!resultUploadImage.statusResponse) {
+            setLoading(false);
+            Alert.alert("Ha ocurrido un error al almacenar la foto de perfil.");
+            return;
+        }
+
+        const resultUploadProfile = await updateProfile({ photoURL: resultUploadImage.url });
+        if (resultUploadProfile.statusResponse) {
+            setPhotoUrl(resultUploadImage.url);
+        } else {
+            Alert.alert("Ha ocurrido un error al actualizar la foto de perfil.");
+        }
+
+        setLoading(false);
+    }
 
     return (
         <View style={styles.container}>
@@ -19,8 +45,8 @@ export default function InfoUser({ user }) {
                 containerStyle={styles.avatar}
                 onPress={changePhoto}
                 source={
-                    user.photoURL
-                        ? { uri: photoURL }
+                    photoUrl
+                        ? { uri: photoUrl }
                         : require("../../assets/avatar-default.jpg")
                 }
             />
