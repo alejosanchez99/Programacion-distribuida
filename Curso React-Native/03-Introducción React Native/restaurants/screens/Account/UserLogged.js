@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
-import Toast from "react-native-easy-toast";
+import Toast from 'react-native-easy-toast';
 
 import { closeSession, getCurrentUser } from '../../utils/actions';
 import Loading from '../../components/Loading';
@@ -39,7 +39,7 @@ export default function UserLogged() {
             }
             <AccountOptions 
                 user={user}
-                toast={toastRef}
+                toastRef={toastRef}
                 setReloadUser={setReloadUser}
             />
             <Button
@@ -51,7 +51,7 @@ export default function UserLogged() {
                     navigation.navigate("restaurants");
                 }}
             />
-            <Toast ref={toastRef} position="center" opacity={0.9} />
+            <Toast ref={toastRef} position="center" opacity={0.9}/>
             <Loading isVisible={loading} text={loadingText} />
         </View>
     )
