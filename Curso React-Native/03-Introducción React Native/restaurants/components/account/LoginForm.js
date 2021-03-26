@@ -1,82 +1,86 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Button, Icon, Input } from 'react-native-elements';
-import { useNavigation } from "@react-navigation/native";
+import { Button, Icon, Input } from 'react-native-elements'
+import { useNavigation } from '@react-navigation/native'
 
-import Loading from '../Loading';
-import { validateEmail } from "../../utils/helpers";
-import { loginUserWithEmailAndPassword } from '../../utils/actions';
-import { isEmpty } from 'lodash';
+import Loading from '../Loading'
+
+import { validateEmail } from '../../utils/helpers'
+import { loginUserWithEmailAndPassword } from '../../utils/actions'
+import { isEmpty } from 'lodash'
 
 export default function LoginForm() {
-    const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState(defaultFormValues());
-    const [errorEmail, setErrorEmail] = useState("");
-    const [errorPassword, setErrorPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false)
+    const [formData, setFormData] = useState(defaultFormValues())
+    const [errorEmail, setErrorEmail] = useState("")
+    const [errorPassword, setErrorPassword] = useState("")
+    const [loading, setLoading] = useState(false)
 
-    const navigation = useNavigation();
+    const navigation = useNavigation()
 
     const onChange = (e, type) => {
         setFormData({
-            ...formData, [type]:
-                e.nativeEvent.text
+            ...formData,
+            [type]: e.nativeEvent.text
         });
     }
 
-    const doLogin = async() => {
+    const doLogin = async () => {
         if (!validateData()) {
             return;
         }
 
-        setLoading(true);
+        setLoading(true)
+        console.log(formData.email, formData.password);
+        const result = await loginUserWithEmailAndPassword(formData.email, formData.password)
 
-        const result = await loginUserWithEmailAndPassword(formData.email, formData.password);
 
-        setLoading(false);
+        setLoading(false)
 
         if (!result.statusResponse) {
-            setErrorEmail(result.error);
-            return;
+            setErrorEmail(result.error)
+            setErrorPassword(result.error)
+            return
         }
 
-        navigation.navigate("account");
+        navigation.navigate("account")
     }
 
     const validateData = () => {
-        setErrorEmail("");
-        setErrorPassword("");
-
-        let isValid = true;
+        setErrorEmail("")
+        setErrorPassword("")
+        let isValid = true
 
         if (!validateEmail(formData.email)) {
-            setErrorEmail("Debes de ingresar un email válido.");
-            isValid = false;
+            setErrorEmail("Debes de ingresar un email válido.")
+            isValid = false
         }
 
         if (isEmpty(formData.password)) {
-            setErrorPassword("Debes de ingresar tu contraseña válido.");
-            isValid = false;
+            setErrorPassword("Debes de ingresar tu contraseña.")
+            isValid = false
         }
 
-        return isValid;
+        return isValid
     }
+
 
     return (
         <View style={styles.container}>
             <Input
-                placeholder="Ingresa tu email"
                 containerStyle={styles.input}
+                placeholder="Ingresa tu email..."
                 onChange={(e) => onChange(e, "email")}
                 keyboardType="email-address"
                 errorMessage={errorEmail}
                 defaultValue={formData.email}
             />
             <Input
-                placeholder="Ingresa tu contraseña"
                 containerStyle={styles.input}
+                placeholder="Ingresa tu contraseña..."
                 password={true}
                 secureTextEntry={!showPassword}
+                onChange={(e) => onChange(e, "password")}
                 errorMessage={errorPassword}
                 defaultValue={formData.password}
                 rightIcon={
@@ -84,28 +88,23 @@ export default function LoginForm() {
                         type="material-community"
                         name={showPassword ? "eye-off-outline" : "eye-outline"}
                         iconStyle={styles.icon}
-                        onPress={() => { setShowPassword(!showPassword); }}
+                        onPress={() => setShowPassword(!showPassword)}
                     />
                 }
-                onChange={(e) => onChange(e, "password")}
             />
-
             <Button
-                title="Iniciar sesión"
-                containerStyle={styles.buttonContainer}
-                buttonStyle={styles.button}
+                title="Iniciar Sesión"
+                containerStyle={styles.btnContainer}
+                buttonStyle={styles.btn}
                 onPress={() => doLogin()}
             />
-            <Loading isVisible={loading} text="Iniciando sesión" />
+            <Loading isVisible={loading} text="Iniciando Sesión..." />
         </View>
     )
 }
 
 const defaultFormValues = () => {
-    return {
-        email: "",
-        password: ""
-    };
+    return { email: "", password: "" }
 }
 
 const styles = StyleSheet.create({
@@ -118,14 +117,13 @@ const styles = StyleSheet.create({
     input: {
         width: "100%"
     },
-    buttonContainer: {
+    btnContainer: {
         marginTop: 20,
         width: "95%",
         alignSelf: "center"
     },
-    button: {
-        backgroundColor: "#442484",
-        borderRadius: 40
+    btn: {
+        backgroundColor: "#442484"
     },
     icon: {
         color: "#c1c1c1"
