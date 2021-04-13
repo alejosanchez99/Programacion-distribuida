@@ -1,29 +1,29 @@
-import React, { useState } from 'react'
-import { StyleSheet, Text, View, ScrollView, Dimensions, Image } from 'react-native'
-import { Avatar, Button, Icon, Input } from 'react-native-elements'
-import CountryPicker from "react-native-country-picker-modal"
-import { size, map } from 'lodash'
+import React, { useState, useEffect } from 'react'
+import { Alert, Dimensions, StyleSheet, Text, View, ScrollView } from 'react-native'
+import { Avatar, Button, Icon, Input, Image } from 'react-native-elements'
+import { map, size, filter, isEmpty } from 'lodash'
+import CountryPicker from 'react-native-country-picker-modal'
 
-import { loadImageFromGallery } from "../../utils/helpers"
+import { loadImageFromGallery } from '../../utils/helpers'
 
 const widthScreen = Dimensions.get("window").width
 
 export default function AddRestaurantForm({ toastRef, setLoading, navigation }) {
-    const [formData, setFormData] = useState(defaultFormValue())
+    const [formData, setFormData] = useState(defaultFormValues())
     const [errorName, setErrorName] = useState(null)
     const [errorEmail, setErrorEmail] = useState(null)
     const [errorAddress, setErrorAddress] = useState(null)
     const [errorPhone, setErrorPhone] = useState(null)
     const [errorDescription, setErrorDescription] = useState(null)
-    const [imagesSelected, setImagesSelected] = useState({})
+    const [imagesSelected, setImagesSelected] = useState([])
 
     const addRestaurant = () => {
         console.log(formData)
         console.log("fuck Yeah!!")
     }
 
-    return (
 
+    return (
         <ScrollView style={styles.viewContainer}>
             <ImageRestaurant
                 imageRestaurant={imagesSelected[0]}
@@ -43,7 +43,7 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 setImagesSelected={setImagesSelected}
             />
             <Button
-                title="Crear restaurante"
+                title="Crear Restaurante"
                 onPress={addRestaurant}
                 buttonStyle={styles.btnAddRestaurant}
             />
@@ -55,7 +55,7 @@ function ImageRestaurant({ imageRestaurant }) {
     return (
         <View style={styles.viewPhoto}>
             <Image
-                style={{ with: widthScreen, height: 200 }}
+                style={{ width: widthScreen, height: 200 }}
                 source={
                     imageRestaurant
                         ? { uri: imageRestaurant }
@@ -67,15 +67,35 @@ function ImageRestaurant({ imageRestaurant }) {
 }
 
 function UploadImage({ toastRef, imagesSelected, setImagesSelected }) {
-
     const imageSelect = async () => {
         const response = await loadImageFromGallery([4, 3])
         if (!response.status) {
-            toastRef.current.show("No has seleccionado ninguna imagen", 3000)
+            toastRef.current.show("No has seleccionado ninguna imagen.", 3000)
             return
         }
-
         setImagesSelected([...imagesSelected, response.image])
+    }
+
+    const removeImage = (image) => {
+        Alert.alert(
+            "Eliminar Imagen",
+            "¿Estas seguro que quieres eliminar la imagen?",
+            [
+                {
+                    text: "No",
+                    style: "cancel"
+                },
+                {
+                    text: "Sí",
+                    onPress: () => {
+                        setImagesSelected(
+                            filter(imagesSelected, (imageUrl) => imageUrl !== image)
+                        )
+                    }
+                }
+            ],
+            { cancelable: false }
+        )
     }
 
     return (
@@ -84,8 +104,7 @@ function UploadImage({ toastRef, imagesSelected, setImagesSelected }) {
             style={styles.viewImages}
         >
             {
-                size(imagesSelected) < 10 &&
-                (
+                size(imagesSelected) < 10 && (
                     <Icon
                         type="material-community"
                         name="camera"
@@ -96,19 +115,29 @@ function UploadImage({ toastRef, imagesSelected, setImagesSelected }) {
                 )
             }
             {
-                map(imagesSelected, (imagesSelected, index) => (
+                map(imagesSelected, (imageRestaurant, index) => (
                     <Avatar
                         key={index}
                         style={styles.miniatureStyle}
                         source={{ uri: imageRestaurant }}
+                        onPress={() => removeImage(imageRestaurant)}
                     />
                 ))
             }
+
         </ScrollView>
     )
 }
 
-function FormAdd({ formData, setFormData, errorName, errorEmail, errorAddress, errorPhone, errorDescription }) {
+function FormAdd({
+    formData,
+    setFormData,
+    errorName,
+    errorEmail,
+    errorAddress,
+    errorPhone,
+    errorDescription
+}) {
     const [country, setCountry] = useState("CO")
     const [callingCode, setCallingCode] = useState("57")
     const [phone, setPhone] = useState("")
@@ -175,16 +204,15 @@ function FormAdd({ formData, setFormData, errorName, errorEmail, errorAddress, e
     )
 }
 
-const defaultFormValue = () => {
+const defaultFormValues = () => {
     return {
         name: "",
         description: "",
-        phone: "",
         email: "",
+        phone: "",
         address: "",
         country: "CO",
-        callingCode: "57",
-        description: ""
+        callingCode: "57"
     }
 }
 
@@ -193,7 +221,7 @@ const styles = StyleSheet.create({
         height: "100%"
     },
     viewForm: {
-        marginHorizontal: 10
+        marginHorizontal: 10,
     },
     textArea: {
         height: 100,
@@ -208,7 +236,6 @@ const styles = StyleSheet.create({
     },
     btnAddRestaurant: {
         margin: 20,
-        borderRadius: 20,
         backgroundColor: "#442484"
     },
     viewImages: {
@@ -229,7 +256,7 @@ const styles = StyleSheet.create({
         height: 70,
         marginRight: 10
     },
-    viewPhoto : {
+    viewPhoto: {
         alignItems: "center",
         height: 200,
         marginBottom: 20
