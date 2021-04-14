@@ -1,8 +1,8 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
-import { Overlay } from "react-native-elements";
+import { Overlay } from 'react-native-elements'
 
-export function Modal({ isVisible, setVisible, children }) {
+export default function Modal({ isVisible, setVisible, children }) {
     return (
         <Overlay
             isVisible={isVisible}
@@ -12,6 +12,7 @@ export function Modal({ isVisible, setVisible, children }) {
             {
                 children
             }
+
         </Overlay>
     )
 }
