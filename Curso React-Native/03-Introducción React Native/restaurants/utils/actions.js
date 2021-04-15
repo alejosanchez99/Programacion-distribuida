@@ -73,7 +73,7 @@ export const uploadImage = async (image, path, name) => {
 }
 
 export const updateProfile = async (data) => {
-    const result = { statusResponse : true, error: null };
+    const result = { statusResponse: true, error: null };
 
     try {
         await firebase.auth().currentUser.updateProfile(data);
@@ -84,8 +84,8 @@ export const updateProfile = async (data) => {
     return result;
 }
 
-export const reauthenticate = async(password) => {
-    const result = { statusResponse : true, error: null };
+export const reauthenticate = async (password) => {
+    const result = { statusResponse: true, error: null };
     const user = getCurrentUser();
     const credentials = firebase.auth.EmailAuthProvider.credential(user.email, password);
 
@@ -101,7 +101,7 @@ export const reauthenticate = async(password) => {
 
 
 export const updateEmail = async (email) => {
-    const result = { statusResponse : true, error: null };
+    const result = { statusResponse: true, error: null };
 
     try {
         await firebase.auth().currentUser.updateEmail(email);
@@ -113,7 +113,7 @@ export const updateEmail = async (email) => {
 }
 
 export const updatePassword = async (password) => {
-    const result = { statusResponse : true, error: null };
+    const result = { statusResponse: true, error: null };
 
     try {
         await firebase.auth().currentUser.updatePassword(password);
@@ -123,3 +123,15 @@ export const updatePassword = async (password) => {
     }
     return result;
 }
+
+export const addDocumentWithoutId = async (collection, data) => {
+    const result = { statusResponse: true, error: null }
+    try {
+        await db.collection(collection).add(data)
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result
+}
+

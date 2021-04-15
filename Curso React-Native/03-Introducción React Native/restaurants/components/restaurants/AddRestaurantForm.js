@@ -4,9 +4,11 @@ import { Avatar, Button, Icon, Input, Image } from 'react-native-elements'
 import { map, size, filter, isEmpty } from 'lodash'
 import CountryPicker from 'react-native-country-picker-modal'
 
-import { getCurrentLocation, loadImageFromGallery } from '../../utils/helpers'
+import { getCurrentLocation, loadImageFromGallery, validateEmail } from '../../utils/helpers'
+import { uploadImage } from "../../utils/actions"
 import Modal from '../../components/Modal'
 import MapView from 'react-native-maps'
+import uuid from "random-uuid-v4"
 
 const widthScreen = Dimensions.get("window").width
 
@@ -21,9 +23,100 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     const [isVisibleMap, setIsVisibleMap] = useState(false)
     const [locationRestaurant, setLocationRestaurant] = useState(null)
 
-    const addRestaurant = () => {
-        console.log(formData)
-        console.log("fuck Yeah!!")
+    const addRestaurant = async () => {
+        if (!validForm()) {
+            return
+        }
+
+        setLoading(true)
+        const responseUploadImages = await uploadImages()
+        const restaurant = {
+            name: formData.name,
+            address: formData.address,
+            description: formData.description,
+            callingCode: formData.callingCode,
+            phone: formData.phone,
+            location: locationRestaurant,
+            email: formData.email,
+            images: responseUploadImages,
+            rating: 0,
+            ratingTotal: 0,
+            quantityVoting: 0,
+            createAt: new Date(),
+            createBy: getCurrentUser().uid
+        }
+        const responseAddDocument = await addDocumentWithoutId("restaurants", restaurant)
+        setLoading(false)
+
+        if (!responseAddDocument.statusResponse) {
+            toastRef.current.show("Error al grabar el restaurante, por favor intenta más tarde.", 3000)
+            return
+        }
+
+        navigation.navigate("restaurants")
+    }
+
+    const uploadImages = async () => {
+        const imagesUrl = []
+
+        await Promise.all(
+            map(imagesSelected, async(image) => {
+                const response = await uploadImage(image, "restaurants", uuid())
+                if(response.statusResponse){
+                    imagesUrl.push(response.url)
+                }
+            })
+        )
+
+        return imagesUrl
+    }
+
+    const validForm = () => {
+        clearErrors()
+        let isValid = true
+
+        if (isEmpty(formData.name)) {
+            setErrorName("Debes ingresar el nombre del restaurante.")
+            isValid = false
+        }
+
+        if (isEmpty(formData.address)) {
+            setErrorAddress("Debes ingresar la dirección del restaurante.")
+            isValid = false
+        }
+
+        if (!validateEmail(formData.email)) {
+            setErrorEmail("Debes ingresar un email de restaurante válido.")
+            isValid = false
+        }
+
+        if (size(formData.phone) < 10) {
+            setErrorPhone("Debes ingresar un teléfono de restaurante válido.")
+            isValid = false
+        }
+
+        if (isEmpty(formData.description)) {
+            setErrorDescription("Debes ingresar una descripción del restaurante.")
+            isValid = false
+        }
+
+        if (!locationRestaurant) {
+            toastRef.current.show("Debes de localizar el restaurante en el mapa.", 3000)
+            isValid = false
+        } else if (size(imagesSelected) === 0) {
+            toastRef.current.show("Debes de agregar al menos una imagen al restaurante.", 3000)
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    const clearErrors = () => {
+        setErrorAddress(null)
+        setErrorDescription(null)
+        setErrorEmail(null)
+        setErrorName(null)
+        setErrorPhone(null)
     }
 
     return (
@@ -40,6 +133,7 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 errorPhone={errorPhone}
                 errorDescription={errorDescription}
                 setIsVisibleMap={setIsVisibleMap}
+                locationRestaurant={locationRestaurant}
             />
             <UploadImage
                 toastRef={toastRef}
@@ -54,7 +148,6 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
             <MapRestaurant
                 isVisibleMap={isVisibleMap}
                 setIsVisibleMap={setIsVisibleMap}
-                locationRestaurant={locationRestaurant}
                 setLocationRestaurant={setLocationRestaurant}
                 toastRef={toastRef}
             />
@@ -62,15 +155,24 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     )
 }
 
-function MapRestaurant({ isVisibleMap, setIsVisibleMap, locationRestaurant, setLocationRestaurant, toastRef }) {
+function MapRestaurant({ isVisibleMap, setIsVisibleMap, setLocationRestaurant, toastRef }) {
+
+    const [newRegion, setNewRegion] = useState(null)
+
     useEffect(() => {
         (async () => {
             const response = await getCurrentLocation()
             if (response.status) {
-                setLocationRestaurant(response.location)
+                setNewRegion(response.location)
             }
         })()
     }, [])
+
+    const confirmLocation = () => {
+        setLocationRestaurant(newRegion)
+        toastRef.current.show("localización guardada correctamente.", 3000)
+        setIsVisibleMap(false)
+    }
 
     return (
         <Modal
@@ -78,16 +180,17 @@ function MapRestaurant({ isVisibleMap, setIsVisibleMap, locationRestaurant, setL
             setVisible={setIsVisibleMap}>
             <View>
                 {
-                    locationRestaurant && (
+                    newRegion && (
                         <MapView
                             style={styles.mapStyle}
-                            initialRegion={locationRestaurant}
+                            initialRegion={newRegion}
                             showsUserLocation={true}
+                            onRegionChange={(region) => setNewRegion(region)}
                         >
                             <MapView.Marker
                                 coordinate={{
-                                    latitude: locationRestaurant.latitude,
-                                    longitude: locationRestaurant.longitude
+                                    latitude: newRegion.latitude,
+                                    longitude: newRegion.longitude
                                 }}
                                 draggable
                             />
@@ -99,11 +202,13 @@ function MapRestaurant({ isVisibleMap, setIsVisibleMap, locationRestaurant, setL
                         title="Guardar ubicación"
                         containerStyle={styles.viewMapBtnContainerSave}
                         buttonStyle={styles.viewMapBtnSave}
+                        onPress={confirmLocation}
                     />
                     <Button
                         title="Cancelar ubicación"
                         containerStyle={styles.viewMapBtnContainerCancel}
                         buttonStyle={styles.viewMapBtnCancel}
+                        onPress={() => setIsVisibleMap(false)}
                     />
 
                 </View>
@@ -198,7 +303,8 @@ function FormAdd({
     errorAddress,
     errorPhone,
     errorDescription,
-    setIsVisibleMap
+    setIsVisibleMap,
+    locationRestaurant
 }) {
     const [country, setCountry] = useState("CO")
     const [callingCode, setCallingCode] = useState("57")
@@ -224,7 +330,7 @@ function FormAdd({
                 rightIcon={{
                     type: "material-community",
                     name: "google-maps",
-                    color: "#C2C2C2",
+                    color: locationRestaurant ? "#442484" : "#C2C2C2",
                     onPress: () => setIsVisibleMap(true)
                 }}
             />
@@ -348,6 +454,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#a65273"
     },
     viewMapBtnSave: {
-        backgroundColor: "#442484"   
+        backgroundColor: "#442484"
     }
 })
